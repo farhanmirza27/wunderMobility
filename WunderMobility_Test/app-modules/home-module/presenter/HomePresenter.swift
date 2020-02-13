@@ -23,8 +23,8 @@ class  HomePresenter  : ViewToPresenterHomeProtocol {
         interactor?.fetchVehiclesList()
     }
     
-    func showMapView(vehicle: Vehicle, navigationController: UINavigationController) {
-        let mapModule = MapRouter.createModule(vehicle: vehicle)
+    func showMapView(vehicles: [Vehicle], navigationController: UINavigationController) {
+        let mapModule = MapRouter.createModule(vehicles: vehicles)
         navigationController.pushViewController(mapModule, animated: true)
     }
     

@@ -22,7 +22,7 @@ protocol PresenterToViewMapProtocol: class {
 }
 
 protocol PresenterToRouterMapProtocol: class {
-    static func createModule(vehicle : Vehicle)-> MapViewController
+    static func createModule(vehicles : [Vehicle])-> MapViewController
 }
 
 protocol PresenterToInteractorMapProtocol: class {

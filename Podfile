@@ -11,6 +11,8 @@ target 'WunderMobility_Test' do
   pod 'GoogleMaps'
   pod 'GooglePlaces'
   pod 'Disk'
+  pod 'RxSwift', '~> 5'
+  pod 'RxCocoa', '~> 5'
   
   target 'WunderMobility_TestTests' do
     inherit! :search_paths

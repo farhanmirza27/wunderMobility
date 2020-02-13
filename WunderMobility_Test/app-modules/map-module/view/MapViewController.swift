@@ -12,7 +12,7 @@ import GoogleMaps
 
 class MapViewController: UIViewController, CLLocationManagerDelegate, GMSMapViewDelegate {
     
-    var vehicle : Vehicle?
+    var vehicles = [Vehicle]()
     
     var mapView : GMSMapView!
     
@@ -21,22 +21,24 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, GMSMapView
     override func viewDidLoad() {
         super.viewDidLoad()
         setupMapView()
-        
         // Do any additional setup after loading the view.
     }
     
     
     func setupMapView() {
-        if let coordinates = vehicle?.coordinates {
+        if let coordinates = vehicles.first?.coordinates {
             
             let camera = GMSCameraPosition.camera(withLatitude: coordinates[1], longitude: coordinates[0], zoom: 15.0)
             mapView = GMSMapView.map(withFrame: CGRect.zero, camera: camera)
             
             // Add Markers
-            let marker = GMSMarker()
-            marker.position = CLLocationCoordinate2DMake(coordinates[1], coordinates[0])
-            marker.title = vehicle?.name
-            marker.map = mapView
+            for item in vehicles {
+                let marker = GMSMarker()
+                marker.position = CLLocationCoordinate2DMake(item.coordinates[1], item.coordinates[0])
+                marker.title = item.name
+                marker.map = mapView
+            }
+            
         }
         
         view = mapView

@@ -7,58 +7,66 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 private let reuseIdentifier = "ListCellId"
 
 class HomeViewController: UITableViewController {
-
-    var vehicles = [Vehicle]()
     
     var presenter : ViewToPresenterHomeProtocol?
+    
+    var vehicles = BehaviorRelay(value: [Vehicle]())
+    
+    private var disposeBag = DisposeBag()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setupViews()
+        bindTableViewData()
+        bindTableViewSelected()
+        presenter?.fetchVehiclesList()
     }
     
     func setupViews() {
-        navigationItem.title = "Vehicles"
+        navigationItem.title = "Vehicles List"
+        tableView.dataSource = nil
         tableView.register(ListTableViewCell.self, forCellReuseIdentifier: reuseIdentifier)
-        presenter?.fetchVehiclesList()
-    
-    }
-
-
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(named : "location"), style: .plain, target: self, action: #selector(navigateToMapView))
+        
     }
     
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return vehicles.count
+    @objc func navigateToMapView() {
+        presenter?.showMapView(vehicles: self.vehicles.value, navigationController: navigationController!)
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifier, for: indexPath) as! ListTableViewCell
-        cell.bindData(data: vehicles[indexPath.row])
-        return cell
+    
+    private func bindTableViewData() {
+        self.vehicles.bind(to: self.tableView.rx.items(cellIdentifier: reuseIdentifier, cellType: ListTableViewCell.self)) { index, model, cell in
+            cell.bindData(data: model)
+        }.disposed(by: self.disposeBag)
     }
-
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        presenter?.showMapView(vehicle: vehicles[indexPath.row], navigationController: self.navigationController!)
+    
+    private func bindTableViewSelected() {
+        tableView
+            .rx
+            .modelSelected(Vehicle.self)
+            .subscribe(onNext :{ [weak self] model in
+                guard let strongSelf = self else { return }
+                self!.presenter?.showMapView(vehicles: [model], navigationController: strongSelf.navigationController!)
+                
+            }).disposed(by: disposeBag)
     }
 }
 
 
 extension HomeViewController : PresenterToViewHomeProtocol {
     func displayVehicalsList(vehicles: [Vehicle]) {
-        self.vehicles = vehicles
-        tableView.reloadData()
+        self.vehicles.accept(vehicles)
     }
-
+    
     func showError() {
         self.alert(message: "No Internet")
     }
-    
-    
 }

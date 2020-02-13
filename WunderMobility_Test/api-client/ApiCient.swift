@@ -9,19 +9,26 @@
 
 
 import Alamofire
+import RxSwift
 
 class APIClient {
-    @discardableResult
-    private static func performRequest<T:Decodable>(route:APIRouter, decoder: JSONDecoder = JSONDecoder(), completion:@escaping (AFResult<T>)->Void) -> DataRequest {
-        return AF.request(route)
-            .responseDecodable (decoder: decoder){ (response: AFDataResponse<T>) in
-                completion(response.result)
+    
+    static func fetchVehicles(route : APIRouter, decoder: JSONDecoder = JSONDecoder()) -> Observable<Response> {
+        return Observable<Response>.create { observer -> Disposable in
+            let request = AF.request(route)
+                .responseDecodable (decoder: decoder){ (response: AFDataResponse<Response>) in
+                    switch response.result {
+                    case .success(let response):
+                        observer.onNext(response)
+                        observer.onCompleted()
+                    case .failure(let error):
+                        observer.onError(error)
+                    }
+            }
+            return Disposables.create(with: {
+                request.cancel()
+            })
         }
     }
-
-    // MARK: - Locations
-    static func getLocations(completion:@escaping (AFResult<Response>)->Void) {
-        performRequest(route: APIRouter.locations,completion: completion)
-   
-   }
 }
+

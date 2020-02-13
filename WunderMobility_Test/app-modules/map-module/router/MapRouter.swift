@@ -11,14 +11,14 @@ import Foundation
 
 class MapRouter : PresenterToRouterMapProtocol {
     
-    static func createModule(vehicle : Vehicle) -> MapViewController {
+    static func createModule(vehicles : [Vehicle]) -> MapViewController {
         let view =  MapViewController()
         let presenter: ViewToPresenterMapProtocol & InteractorToPresenterMapProtocol = MapPresenter()
         let interactor: PresenterToInteractorMapProtocol = MapInteractor()
         let router:PresenterToRouterMapProtocol = MapRouter()
         
         view.presenter = presenter
-        view.vehicle = vehicle
+        view.vehicles = vehicles
         presenter.view = view
         presenter.router = router
         presenter.interactor = interactor

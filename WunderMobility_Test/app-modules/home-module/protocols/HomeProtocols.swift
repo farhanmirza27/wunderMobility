@@ -16,7 +16,7 @@ protocol ViewToPresenterHomeProtocol: class{
     var interactor: PresenterToInteractorHomeProtocol? {get set}
     var router: PresenterToRouterHomeProtocol? {get set}
     func fetchVehiclesList()
-    func showMapView(vehicle : Vehicle, navigationController : UINavigationController)
+    func showMapView(vehicles : [Vehicle], navigationController : UINavigationController)
     
 }
 

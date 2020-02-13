@@ -47,12 +47,9 @@ enum APIRouter: URLRequestConvertible {
         let baseAppend = base.appendingPathComponent(path).absoluteString.removingPercentEncoding
         let url = URL(string: baseAppend!)
         
-        var urlRequest =  URLRequest(url: url!)//URLRequest(url: url.appendingPathComponent(path))
+        var urlRequest =  URLRequest(url: url!)
         // HTTP Method
         urlRequest.httpMethod = method.rawValue
-        
-//        // Common Headers
-//        urlRequest.setValue(ContentType.json.rawValue, forHTTPHeaderField: HTTPHeaderField.contentType.rawValue)
         
         // Parameters
         if let parameters = parameters {

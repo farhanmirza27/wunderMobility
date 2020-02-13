@@ -7,13 +7,16 @@
 //
 
 import Foundation
-
+import RxSwift
 
 class HomeInteractor : PresenterToInteractorHomeProtocol {
     var presenter: InteractorToPresenterHomeProtocol?
+   
+    private var disposeBag = DisposeBag()
     
     func fetchVehiclesList() {
         
+        // internet failure...
         guard AppManager.shared.connectedToNetwork() else {
             if let vehicles = DataManager.shared.retrieveDataFromDisk() {
                 self.presenter?.fetchUsingOfflineMode(vehicles: vehicles)
@@ -21,19 +24,18 @@ class HomeInteractor : PresenterToInteractorHomeProtocol {
             return
         }
         
-        
-        // internet failure...
         // handle api call and response
-        APIClient.getLocations { result in
-            switch result {
-            case .success(let response):
-                self.presenter?.fetchVehiclesListSuccess(vehicles: response.placemarks)
-                DataManager.shared.saveDataToDisk(vehicles: response.placemarks)
-            case .failure(let error):
-                print(error)
-                self.presenter?.fetchPicturesListFailed()
-            }
-        }
+            APIClient
+                .fetchVehicles(route: APIRouter.locations)
+                .subscribe(
+                    onNext: { vehicles in
+                        self.presenter?.fetchVehiclesListSuccess(vehicles: vehicles.placemarks)
+                },
+                    onError: { error in
+                        self.presenter?.fetchPicturesListFailed()
+                }
+            )
+                .disposed(by: disposeBag)
         
     }
     
